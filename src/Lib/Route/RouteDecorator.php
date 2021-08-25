@@ -139,7 +139,7 @@ class RouteDecorator
      */
     public function getController(): ?string
     {
-        return $this->controller;
+        return ucfirst($this->controller);
     }
 
     /**
