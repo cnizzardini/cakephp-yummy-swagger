@@ -53,6 +53,9 @@ class OperationFromRouteFactory
 
         $config = $this->swagger->getConfig();
         $fqn = $route->getControllerFqn();
+        if (!$fqn) {
+            return null;
+        }
         $controllerInstance = new $fqn();
 
         $docBlock = $this->getDocBlock($route);
