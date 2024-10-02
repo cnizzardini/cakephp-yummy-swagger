@@ -539,6 +539,7 @@ Class level attribute for modifying OpenAPI Schema.
 | [visibility](#visibility) | int `1`        | No      | Determines the visibility of the schema, see OpenApiSchema class constants |
 | title                     | ?string `null` | Yes     | Overwrites the default title                                               |
 | description               | ?string `null` | Yes     | Overwrites the default description (if any)                                |
+| name                      | ?string `null` | Yes     | The name of the OpenAPI property [defaults to the CakePHP table alias].    |
 
 #### Visibility
 
@@ -554,7 +555,7 @@ You can use the constants below when defining `visibility`:
 Example:
 
 ```php
-#[OpenApiSchema(visbility: OpenApiSchema::VISIBLE_ALWAYS, title: 'Always visible schema')]
+#[OpenApiSchema(visbility: OpenApiSchema::VISIBLE_ALWAYS, title: 'Always visible schema', name: 'RenamedCakeTableAlias')]
 class Actor extends Entity{}
 ```
 

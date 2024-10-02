@@ -61,8 +61,10 @@ class SchemaFactory
             return null;
         }
 
+        $name = $openApiSchema instanceof OpenApiSchema ? $openApiSchema->name : null;
+
         $schema = $this
-            ->createSchema($modelDecorator->getModel(), $propertyType)
+            ->createSchema($modelDecorator->getModel(), $propertyType, $name)
             ->setVisibility($openApiSchema->visibility ?? OpenApiSchema::VISIBLE_DEFAULT)
             ->setDescription($openApiSchema->description ?? '');
 
@@ -84,9 +86,9 @@ class SchemaFactory
      * @return \SwaggerBake\Lib\OpenApi\Schema
      * @throws \ReflectionException
      */
-    public function createAlways(ModelDecorator $modelDecorator, int $propertyType = 6): Schema
+    public function createAlways(ModelDecorator $modelDecorator, int $propertyType = 6, ?string $name = null): Schema
     {
-        return $this->createSchema($modelDecorator->getModel(), $propertyType);
+        return $this->createSchema($modelDecorator->getModel(), $propertyType, $name);
     }
 
     /**
@@ -94,7 +96,7 @@ class SchemaFactory
      * @param int $propertyType see public constants for options
      * @return \SwaggerBake\Lib\OpenApi\Schema
      */
-    private function createSchema(Model $model, int $propertyType = 6): Schema
+    private function createSchema(Model $model, int $propertyType = 6, ?string $name = null): Schema
     {
         $this->validator = $this->getValidator($model);
 
@@ -103,7 +105,7 @@ class SchemaFactory
         $properties = $this->getProperties($model, $propertyType, $docBlock);
 
         $schema = (new Schema())
-            ->setName((new ReflectionClass($model->getEntity()))->getShortName())
+            ->setName($name ?? (new ReflectionClass($model->getEntity()))->getShortName())
             ->setType('object')
             ->setProperties($properties);
 

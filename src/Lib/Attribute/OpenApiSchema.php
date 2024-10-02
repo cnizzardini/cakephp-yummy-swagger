@@ -32,14 +32,16 @@ class OpenApiSchema
     public const VISIBLE_NEVER = 4;
 
     /**
-     * @param int $visibility See class constants for options.
-     * @param string|null $title The title of the schema
-     * @param string|null $description The description of the schema
+     * @param int $visibility See class constants for options [default: VISIBLE_DEFAULT].
+     * @param string|null $title The title of the schema [default: null].
+     * @param string|null $description The description of the schema [default: null].
+     * @param string|null $name The name of the OpenAPI property [defaults to the CakePHP table alias].
      */
     public function __construct(
-        public readonly int $visibility = 1,
+        public readonly int $visibility = self::VISIBLE_DEFAULT,
         public readonly ?string $title = null,
-        public readonly ?string $description = null
+        public readonly ?string $description = null,
+        public readonly ?string $name = null
     ) {
         if ($this->visibility < 1 || $this->visibility > 4) {
             throw new InvalidArgumentException(
@@ -56,6 +58,7 @@ class OpenApiSchema
     public function createSchema(): Schema
     {
         return (new Schema($this->title))
+            ->setName($this->name)
             ->setVisibility($this->visibility)
             ->setDescription($this->description);
     }
