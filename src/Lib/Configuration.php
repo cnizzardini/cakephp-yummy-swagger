@@ -219,27 +219,12 @@ class Configuration
      */
     public function setJson(string $json)
     {
-        $message = 'Generally this value should be placed in your projects webroot directory.';
-
         if (!str_starts_with(haystack: $json, needle: '/')) {
             throw new InvalidArgumentException(
                 sprintf(
                     "Invalid json: `%s`. Value should start with a `/` and be relative to your 
-                    applications ROOT. $message",
+                    applications ROOT. Generally this value should be placed in your projects webroot directory.",
                     $json
-                )
-            );
-        }
-
-        $path = $this->root . $json;
-        if ((!file_exists($path) && !is_writable($path)) || !touch($path)) {
-            throw new InvalidArgumentException(
-                sprintf(
-                    "Invalid json: `%s`. Config value for `json` must exist on the file system. An attempt was 
-                    made to create %s, but permission was denied or the file path is bad. Either fix the file system 
-                    permissions, create the file and/or both. $message",
-                    $json,
-                    $path
                 )
             );
         }
