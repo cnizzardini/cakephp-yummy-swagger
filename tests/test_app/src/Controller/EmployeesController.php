@@ -14,7 +14,6 @@ use SwaggerBake\Lib\Attribute\OpenApiRequestBody;
 use SwaggerBake\Lib\Attribute\OpenApiResponse;
 use SwaggerBake\Lib\Attribute\OpenApiSecurity;
 use SwaggerBake\Lib\Extension\CakeSearch\Attribute\OpenApiSearch;
-use SwaggerBake\Test\TestCase\Lib\Attribute\OpenApiDtoTest;
 use SwaggerBakeTest\App\Dto\CustomResponseSchema;
 use SwaggerBakeTest\App\Dto\CustomResponseSchemaPublic;
 use SwaggerBakeTest\App\Dto\EmployeeDataRequest;
@@ -138,7 +137,6 @@ class EmployeesController extends AppController
     #[OpenApiQueryParam(name: 'queryParamName', type: "string", isRequired: false)]
     #[OpenApiHeader(name: 'X-HEAD-ATTRIBUTE', type: 'string', isRequired: true)]
     #[OpenApiPaginator]
-    #[OpenApiResponse(schemaType: 'object', description: "hello world")]
     public function customGet(): void
     {
 

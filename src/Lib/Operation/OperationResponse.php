@@ -3,9 +3,11 @@ declare(strict_types=1);
 
 namespace SwaggerBake\Lib\Operation;
 
+use Cake\Utility\Inflector;
 use ReflectionClass;
 use ReflectionMethod;
 use SwaggerBake\Lib\Attribute\AttributeFactory;
+use SwaggerBake\Lib\Attribute\OpenApiPaginator;
 use SwaggerBake\Lib\Attribute\OpenApiResponse;
 use SwaggerBake\Lib\Attribute\OpenApiSchema;
 use SwaggerBake\Lib\Attribute\OpenApiSchemaProperty;
@@ -21,6 +23,7 @@ use SwaggerBake\Lib\OpenApi\Schema;
 use SwaggerBake\Lib\OpenApi\Xml as OpenApiXml;
 use SwaggerBake\Lib\Route\RouteDecorator;
 use SwaggerBake\Lib\Swagger;
+use UnexpectedValueException;
 
 /**
  * Builds OpenAPI Operation Responses for CRUD actions and controller actions annotated with SwagResponseSchema
@@ -405,6 +408,11 @@ class OperationResponse
 
             if ($mimeType == 'application/xml') {
                 $schema->setXml((new OpenApiXml())->setName('response'));
+            }
+
+            if (isset($this->refMethod) && !empty($this->refMethod->getAttributes(OpenApiPaginator::class))) {
+                $schema = Inflector::singularize($this->route->getController() ?? throw new UnexpectedValueException());
+                $schema = $this->getMimeTypeSchema($mimeType, 'array', '#/components/schemas/' . $schema);
             }
 
             $response->pushContent(new Content($mimeType, $schema));

@@ -109,7 +109,8 @@ class OperationQueryParameterTest extends TestCase
         $operation = $operationQueryParam->getOperationWithQueryParameters();
 
         $parameters = $operation->getParameters();
-        $this->assertCount(11, $parameters);
+
+        $this->assertCount(12, $parameters);
     }
 
     public function test_openapi_paginator(): void

@@ -4,7 +4,9 @@ namespace SwaggerBake\Test\TestCase\Lib\Operation;
 
 use Cake\Routing\RouteBuilder;
 use Cake\Routing\Router;
+use Cake\TestSuite\PHPUnitConsecutiveTrait;
 use Cake\TestSuite\TestCase;
+use SwaggerBake\Lib\Attribute\OpenApiPaginator;
 use SwaggerBake\Lib\Attribute\OpenApiResponse;
 use SwaggerBake\Lib\Configuration;
 use SwaggerBake\Lib\SwaggerFactory;
@@ -19,6 +21,7 @@ use SwaggerBake\Test\TestCase\Helper\ReflectionAttributeTrait;
 class OperationResponseTest extends TestCase
 {
     use ReflectionAttributeTrait;
+    use PHPUnitConsecutiveTrait;
 
     /**
      * @var string[]
@@ -44,7 +47,8 @@ class OperationResponseTest extends TestCase
                     'delete',
                     'noResponsesDefined',
                     'textPlain',
-                    'options'
+                    'options',
+                    'list'
                 ],
                 'map' => [
                     'noResponsesDefined'  => [
@@ -61,6 +65,11 @@ class OperationResponseTest extends TestCase
                         'method' => ['options'],
                         'action' => 'options',
                         'path' => 'options'
+                    ],
+                    'list' => [
+                        'method' => 'get', 
+                        'action' => 'customGet', 
+                        'path' => 'custom-get'
                     ]
                 ]
             ]);
@@ -68,7 +77,7 @@ class OperationResponseTest extends TestCase
 
         $this->config = new Configuration([
             'prefix' => '/',
-            'yml' => '/config/swagger-bare-bones.yml',
+            'yml' => '/config/swagger-with-generic-collection.yml',
             'json' => '/webroot/swagger.json',
             'webPath' => '/swagger.json',
             'hotReload' => false,
@@ -172,13 +181,17 @@ class OperationResponseTest extends TestCase
         $route = $this->routes['employees:add'];
 
         $mockReflectionMethod = $this->createPartialMock(\ReflectionMethod::class, ['getAttributes']);
-        $mockReflectionMethod->expects($this->once())
-            ->method(
-                'getAttributes'
+        $mockReflectionMethod->expects($this->exactly(2))
+            ->method('getAttributes')
+            ->with(
+                ...$this->withConsecutive(
+                    [OpenApiResponse::class],
+                    [OpenApiPaginator::class]
+                )
             )
-            ->with(OpenApiResponse::class)
-            ->will(
-                $this->returnValue([])
+            ->willReturnOnConsecutiveCalls(
+                [],
+                []
             );
 
         $operationResponse = new OperationResponse(
@@ -232,13 +245,17 @@ class OperationResponseTest extends TestCase
         $route = $this->routes['employees:noresponsedefined'];
 
         $mockReflectionMethod = $this->createPartialMock(\ReflectionMethod::class, ['getAttributes']);
-        $mockReflectionMethod->expects($this->once())
-            ->method(
-                'getAttributes'
+        $mockReflectionMethod->expects($this->exactly(2))
+            ->method('getAttributes')
+            ->with(
+                ...$this->withConsecutive(
+                    [OpenApiResponse::class],
+                    [OpenApiPaginator::class]
+                )
             )
-            ->with(OpenApiResponse::class)
-            ->will(
-                $this->returnValue([])
+            ->willReturnOnConsecutiveCalls(
+                [],
+                []
             );
 
         $operationResponse = new OperationResponse(
@@ -388,6 +405,39 @@ class OperationResponseTest extends TestCase
         );
 
         $this->assertNotEmpty($operationResponse->getOperationWithResponses()->getResponseByCode('200'));
+    }
+
+    public function test_custom_get_method_with_collection_response(): void
+    {
+        $route = $this->routes['employees:customget'];
+
+        $mockReflectionMethod = $this->mockReflectionMethod(OpenApiResponse::class, [
+            'statusCode' => '200',
+            'schemaType' => 'array',
+            'ref' => '#/components/schema/Employee',
+        ]);
+
+        $operationResponse = new OperationResponse(
+            $this->mockSwagger('getSchemaByName', 'Employee'),
+            $this->config,
+            new Operation('employees:customget', 'get'),
+            $route,
+            null,
+            $mockReflectionMethod
+        );
+
+        $operation = $operationResponse->getOperationWithResponses();
+        $response = $operation->getResponseByCode('200');
+        $this->assertNotEmpty($response);
+
+        $content = $response->getContentByMimeType('application/json');
+        $this->assertNotEmpty($content);
+        $this->assertNotEmpty($content->getSchema());
+
+        /** @var Schema $schema */
+        $schema = $content->getSchema();
+        $this->assertEquals('array', $schema->getType());
+        $this->assertEquals('#/components/schema/Employee', $schema->getItems()['$ref']);
     }
 
     /**

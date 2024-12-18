@@ -14,6 +14,21 @@ x-swagger-bake:
         required: false
         schema:
           type: integer
+      paginatorOrder:
+        name: order
+        in: query
+        required: false
+        schema:
+          type: array
+          items:
+            type: object
+            properties:
+              field:
+                type: string
+                example: name
+              dir:
+                type: string
+                example: asc
       paginatorSort:
         name: sort
         in: query

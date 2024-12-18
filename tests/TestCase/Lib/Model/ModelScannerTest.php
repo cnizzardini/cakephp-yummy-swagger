@@ -23,17 +23,18 @@ class ModelScannerTest extends TestCase
 
     private array $config;
 
+    private Router $router;
+
     public function setUp(): void
     {
         parent::setUp();
 
-        $router = new Router();
         Router::createRouteBuilder('/')->scope('/', function (RouteBuilder $builder) {
             $builder->setExtensions(['json']);
             $builder->resources('Employees');
         });
 
-        $this->router = $router;
+        $this->router = new Router();
 
         $this->config = [
             'prefix' => '/',
